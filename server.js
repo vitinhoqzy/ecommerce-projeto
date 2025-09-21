@@ -33,7 +33,7 @@ app.use("/api/produtos", produtoRoutes);
 app.use("/api/usuarios", usuarioRoutes);
 app.use("/api/carrinho", carrinhoRoutes);
 app.use("/api/pedidos", pedidoRoutes);
-
+app.use("/api/notificacoes", notificacaoRoutes); 
 // Iniciar servidor
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`🚀 Servidor rodando na porta ${PORT}`));
