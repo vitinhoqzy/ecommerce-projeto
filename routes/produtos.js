@@ -4,7 +4,18 @@ const Produto = require("../models/Produto");
 
 const router = express.Router();
 
-// Criar produto
+// AQUI ESTÁ A FUNÇÃO DO MIDDLEWARE, antes de qualquer rota
+const validarId = (req, res, next) => {
+  const { id } = req.params;
+  if (!mongoose.isValidObjectId(id)) {
+    // Se o ID não for válido, ele para aqui e envia a resposta de erro
+    return res.status(400).json({ erro: "ID inválido." });
+  }
+  // Se o ID for válido, ele chama a próxima função (a rota em si)
+  next();
+};
+
+// Rota para criar produto (não precisa do middleware de ID)
 router.post("/", async (req, res) => {
   try {
     const { nome, preco, estoque, descricao, imagemUrl } = req.body;
@@ -28,7 +39,7 @@ router.post("/", async (req, res) => {
   }
 });
 
-// Listar todos
+// Rota para listar todos (não precisa do middleware de ID)
 router.get("/", async (_req, res) => {
   try {
     const itens = await Produto.find().sort({ createdAt: -1 });
@@ -40,13 +51,10 @@ router.get("/", async (_req, res) => {
 });
 
 // Buscar por ID
-router.get("/:id", async (req, res) => {
+// Colocamos o middleware 'validarId' AQUI, antes da função assíncrona da rota
+router.get("/:id", validarId, async (req, res) => {
   try {
-    const { id } = req.params;
-
-    if (!mongoose.isValidObjectId(id)) {
-      return res.status(400).json({ erro: "ID inválido." });
-    }
+    const { id } = req.params; // O ID já foi validado pelo middleware
 
     const item = await Produto.findById(id);
     if (!item) return res.status(404).json({ erro: "Produto não encontrado." });
@@ -59,17 +67,14 @@ router.get("/:id", async (req, res) => {
 });
 
 // Atualizar por ID
-router.put("/:id", async (req, res) => {
+// Colocamos o middleware 'validarId' AQUI, antes da função da rota
+router.put("/:id", validarId, async (req, res) => {
   try {
-    const { id } = req.params;
-
-    if (!mongoose.isValidObjectId(id)) {
-      return res.status(400).json({ erro: "ID inválido." });
-    }
+    const { id } = req.params; // O ID já foi validado pelo middleware
 
     const atualizado = await Produto.findByIdAndUpdate(id, req.body, {
-      new: true,           // retorna o documento atualizado
-      runValidators: true, // respeita validações do schema
+      new: true,
+      runValidators: true,
     });
 
     if (!atualizado) return res.status(404).json({ erro: "Produto não encontrado." });
@@ -82,13 +87,10 @@ router.put("/:id", async (req, res) => {
 });
 
 // Deletar por ID
-router.delete("/:id", async (req, res) => {
+// Colocamos o middleware 'validarId' AQUI, antes da função da rota
+router.delete("/:id", validarId, async (req, res) => {
   try {
-    const { id } = req.params;
-
-    if (!mongoose.isValidObjectId(id)) {
-      return res.status(400).json({ erro: "ID inválido." });
-    }
+    const { id } = req.params; // O ID já foi validado pelo middleware
 
     const removido = await Produto.findByIdAndDelete(id);
     if (!removido) return res.status(404).json({ erro: "Produto não encontrado." });
