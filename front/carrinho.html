@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Finalizar Compra</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="header-fixo">
+    <div class="header-container">
+      <div class="header-logo">
+        <a href="index.html" aria-label="Página inicial"><img src="https://static.zattini.com.br/images/zattini-logo.svg" alt="Logo" height="32" style="filter: grayscale(1); opacity: 0.85;"></a>
+      </div>
+      <span style="font-size:1.2rem;font-weight:600;">Finalizar Compra</span>
+    </div>
+  </header>
+
+  <main class="checkout-page-main">
+    <div class="checkout-container">
+      <div class="pedido-itens">
+        <div class="pedido-header">
+          <h2>Seu Pedido</h2>
+          <div class="pedido-header-botoes">
+            <a href="index.html" class="btn-voltar">← Continuar Comprando</a>
+            <button id="limpar-carrinho-btn" class="btn-limpar">Limpar Carrinho</button>
+          </div>
+        </div>
+        <div id="checkout-itens-container"></div>
+      </div>
+      <div class="pedido-resumo">
+        <h2>Resumo</h2>
+        <div id="resumo-detalhes">
+          <p><span>Subtotal</span> <span id="resumo-subtotal">R$ 0,00</span></p>
+          <p><span>Frete</span> <span id="resumo-frete">R$ 0,00</span></p>
+        </div>
+        <div class="resumo-total">
+          <strong><span>Total</span> <span id="resumo-total">R$ 0,00</span></strong>
+        </div>
+        <button id="finalizar-pedido-btn" class="btn-finalizar-pedido">Confirmar Pedido</button>
+      </div>
+    </div>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>

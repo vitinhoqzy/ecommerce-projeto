@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sua Loja Virtual</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <header class="header-fixo">
+    <div class="header-container">
+      <div class="header-logo">
+        <a href="index.html" aria-label="Página inicial"><img src="https://static.zattini.com.br/images/zattini-logo.svg" alt="Logo" height="32" style="filter: grayscale(1); opacity: 0.85;"></a>
+      </div>
+      <form class="header-busca" onsubmit="event.preventDefault();">
+        <input type="text" id="busca-input" placeholder="Buscar produtos..." autocomplete="off">
+        <button type="submit" aria-label="Buscar">🔍</button>
+      </form>
+      <div class="header-icons">
+        <a href="#" class="header-icon" aria-label="Favoritos">❤</a>
+        <a href="#" class="header-icon" id="cart-icon" aria-label="Carrinho">🛒<span id="cart-count-badge" class="cart-badge">0</span></a>
+      </div>
+    </div>
+    <nav class="menu-categorias">
+      <ul>
+        <li><a href="#" class="cat-link active" data-categoria="todos">Todos</a></li>
+        <li><a href="#" class="cat-link" data-categoria="roupas">Roupas</a></li>
+        <li><a href="#" class="cat-link" data-categoria="calcados">Calçados</a></li>
+        <li><a href="#" class="cat-link" data-categoria="eletronicos">Eletrônicos</a></li>
+        <li><a href="#" class="cat-link" data-categoria="acessorios">Acessórios</a></li>
+        <li><a href="#" class="cat-link" data-categoria="livros">Livros</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero-banner">
+      <div class="hero-content">
+        <h1>Nova Coleção</h1>
+        <p>As últimas tendências da moda e tecnologia.</p>
+        <a href="#produtos" class="hero-btn">Ver Produtos</a>
+      </div>
+    </section>
+    <section id="produtos" class="produtos">
+      <h2>Nossos Produtos</h2>
+      <div class="grid"></div>
+    </section>
+  </main>
+
+  <footer class="footer-site">
+    <div class="footer-container">
+      <div class="footer-col"><h3>Institucional</h3><ul><li><a href="#">Sobre nós</a></li><li><a href="#">Política de privacidade</a></li></ul></div>
+      <div class="footer-col"><h3>Atendimento</h3><ul><li><a href="#">Fale conosco</a></li><li><a href="#">Trocas e devoluções</a></li></ul></div>
+      <div class="footer-col"><h3>Contato</h3><p>Email: contato@suamarca.com.br</p></div>
+    </div>
+    <div class="footer-copy"><span>&copy; 2025 Sua Marca. Todos os direitos reservados.</span></div>
+  </footer>
+
+  <div id="cart-overlay" class="cart-overlay"></div>
+  <div id="cart-drawer" class="cart-drawer">
+    <div class="cart-header">
+      <h2>Seu Carrinho</h2>
+      <button id="close-cart" class="close-cart">&times;</button>
+    </div>
+    <div id="cart-items" class="cart-items-container"></div>
+    <div class="cart-footer">
+        <p>Total: <strong>R$ <span id="cart-total">0,00</span></strong></p>
+        <a href="carrinho.html" class="btn-finalizar">Finalizar Compra</a>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
