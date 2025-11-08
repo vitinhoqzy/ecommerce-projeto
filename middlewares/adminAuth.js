@@ -1,25 +1,21 @@
-const jwt = require("jsonwebtoken");
-const Usuario = require("../models/Usuario");
+const authMiddleware = require("./auth"); // Reutiliza seu auth normal
 
-const adminAuthMiddleware = async (req, res, next) => {
-    try {
-        const token = req.headers.authorization.split(" ")[1];
-        if (!token) {
-            return res.status(401).json({ mensagem: "Token não fornecido." });
-        }
-        
-        const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
-        const usuario = await Usuario.findById(decodedToken.id);
-
-        if (!usuario || !usuario.isAdmin) {
-            return res.status(403).json({ mensagem: "Acesso negado. Apenas administradores podem acessar esta rota." });
-        }
-
-        req.usuario = usuario;
-        next();
-    } catch (err) {
-        res.status(401).json({ mensagem: "Falha na autenticação: token inválido." });
+// Este middleware VAI verificar se o usuário está logado E se é admin
+const adminAuthMiddleware = (req, res, next) => {
+  
+  // 1. Executa o middleware de autenticação normal primeiro
+  authMiddleware(req, res, () => {
+    
+    // 2. Se passou (está logado), verifica se é admin
+    if (!req.usuario.isAdmin) {
+      return res.status(403).json({ 
+        mensagem: "Acesso negado. Requer privilégios de administrador." 
+      });
     }
+
+    // 3. Se for admin, continua para a rota
+    next();
+  });
 };
 
 module.exports = adminAuthMiddleware;

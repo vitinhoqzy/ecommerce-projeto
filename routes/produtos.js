@@ -1,28 +1,47 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const Produto = require("../models/Produto");
+const adminAuth = require("../middlewares/adminAuth"); // <-- Middleware de Admin
+const { body, validationResult } = require("express-validator"); // <-- Validador
 
 const router = express.Router();
 
-// AQUI ESTÁ A FUNÇÃO DO MIDDLEWARE, antes de qualquer rota
-const validarId = (req, res, next) => {
-  const { id } = req.params;
-  if (!mongoose.isValidObjectId(id)) {
-    // Se o ID não for válido, ele para aqui e envia a resposta de erro
-    return res.status(400).json({ erro: "ID inválido." });
+// Função helper para tratar erros de validação
+const handleValidationErrors = (req, res, next) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ erros: errors.array() });
   }
-  // Se o ID for válido, ele chama a próxima função (a rota em si)
   next();
 };
 
-// Rota para criar produto (não precisa do middleware de ID)
-router.post("/", async (req, res) => {
-  try {
-    const { nome, preco, estoque, descricao, imagemUrl } = req.body;
+// Middleware de validação de ID (o seu original, está ótimo)
+const validarId = (req, res, next) => {
+  const { id } = req.params;
+  if (!mongoose.isValidObjectId(id)) {
+    return res.status(400).json({ erro: "ID inválido." });
+  }
+  next();
+};
 
-    if (!nome || preco == null) {
-      return res.status(400).json({ erro: "Campos 'nome' e 'preco' são obrigatórios." });
-    }
+// --- ROTAS ---
+
+// Rota para criar produto (PROTEGIDA + VALIDADA)
+router.post(
+  "/",
+  adminAuth, // 1. Checa se é Admin
+  [
+    // 2. Valida os dados
+    body("nome", "O nome é obrigatório").notEmpty().trim(),
+    body("preco", "O preço deve ser um número positivo").isFloat({ gt: 0 }),
+    body("estoque", "O estoque deve ser um número inteiro (0 ou mais)")
+      .optional()
+      .isInt({ gte: 0 }),
+  ],
+  handleValidationErrors, // 3. Trata os erros de validação
+  async (req, res) => {
+    // 4. Executa a rota
+    const { nome, preco, estoque, descricao, imagemUrl } = req.body;
 
     const novo = await Produto.create({
       nome,
@@ -33,44 +52,40 @@ router.post("/", async (req, res) => {
     });
 
     res.status(201).json(novo);
-  } catch (err) {
-    console.error("Erro ao criar produto:", err);
-    res.status(500).json({ erro: "Erro interno ao criar produto." });
   }
-});
+);
 
-// Rota para listar todos (não precisa do middleware de ID)
+// Rota para listar todos (PÚBLICA - não precisa de auth)
 router.get("/", async (_req, res) => {
-  try {
-    const itens = await Produto.find().sort({ createdAt: -1 });
-    res.json(itens);
-  } catch (err) {
-    console.error("Erro ao listar produtos:", err);
-    res.status(500).json({ erro: "Erro interno ao listar produtos." });
-  }
+  const itens = await Produto.find().sort({ createdAt: -1 });
+  res.json(itens);
 });
 
-// Buscar por ID
-// Colocamos o middleware 'validarId' AQUI, antes da função assíncrona da rota
+// Buscar por ID (PÚBLICA - não precisa de auth)
 router.get("/:id", validarId, async (req, res) => {
-  try {
-    const { id } = req.params; // O ID já foi validado pelo middleware
+  const { id } = req.params;
+  const item = await Produto.findById(id);
+  
+  if (!item) return res.status(404).json({ erro: "Produto não encontrado." });
 
-    const item = await Produto.findById(id);
-    if (!item) return res.status(404).json({ erro: "Produto não encontrado." });
-
-    res.json(item);
-  } catch (err) {
-    console.error("Erro ao buscar produto:", err);
-    res.status(500).json({ erro: "Erro interno ao buscar produto." });
-  }
+  res.json(item);
 });
 
-// Atualizar por ID
-// Colocamos o middleware 'validarId' AQUI, antes da função da rota
-router.put("/:id", validarId, async (req, res) => {
-  try {
-    const { id } = req.params; // O ID já foi validado pelo middleware
+// Atualizar por ID (PROTEGIDA + VALIDADA)
+router.put(
+  "/:id",
+  adminAuth, // 1. Checa se é Admin
+  validarId, // 2. Checa se o ID é válido
+  [
+    // 3. Valida os dados (opcionais)
+    body("nome").optional().notEmpty().trim(),
+    body("preco").optional().isFloat({ gt: 0 }),
+    body("estoque").optional().isInt({ gte: 0 }),
+  ],
+  handleValidationErrors, // 4. Trata erros de validação
+  async (req, res) => {
+    // 5. Executa a rota
+    const { id } = req.params;
 
     const atualizado = await Produto.findByIdAndUpdate(id, req.body, {
       new: true,
@@ -80,26 +95,17 @@ router.put("/:id", validarId, async (req, res) => {
     if (!atualizado) return res.status(404).json({ erro: "Produto não encontrado." });
 
     res.json(atualizado);
-  } catch (err) {
-    console.error("Erro ao atualizar produto:", err);
-    res.status(500).json({ erro: "Erro interno ao atualizar produto." });
   }
-});
+);
 
-// Deletar por ID
-// Colocamos o middleware 'validarId' AQUI, antes da função da rota
-router.delete("/:id", validarId, async (req, res) => {
-  try {
-    const { id } = req.params; // O ID já foi validado pelo middleware
+// Deletar por ID (PROTEGIDA)
+router.delete("/:id", adminAuth, validarId, async (req, res) => {
+  const { id } = req.params;
 
-    const removido = await Produto.findByIdAndDelete(id);
-    if (!removido) return res.status(404).json({ erro: "Produto não encontrado." });
+  const removido = await Produto.findByIdAndDelete(id);
+  if (!removido) return res.status(404).json({ erro: "Produto não encontrado." });
 
-    res.json({ mensagem: "Produto removido com sucesso." });
-  } catch (err) {
-    console.error("Erro ao remover produto:", err);
-    res.status(500).json({ erro: "Erro interno ao remover produto." });
-  }
+  res.json({ mensagem: "Produto removido com sucesso." });
 });
 
 module.exports = router;

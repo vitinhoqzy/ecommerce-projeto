@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const bcrypt = require("bcryptjs");
+const bcrypt = require("bcryptjs"); // Garantindo que é o bcryptjs
 const jwt = require("jsonwebtoken");
 
 const UsuarioSchema = new mongoose.Schema(
@@ -20,7 +20,6 @@ const UsuarioSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    // Adicione outros campos, se necessário, como endereço, telefone, etc.
     isAdmin: {
       type: Boolean,
       default: false,

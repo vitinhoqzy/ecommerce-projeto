@@ -1,3 +1,4 @@
+require("express-async-errors"); // Deve ser a primeira linha
 const express = require("express");
 const mongoose = require("mongoose");
 const dotenv = require("dotenv");
@@ -12,6 +13,7 @@ const app = express();
 
 // Middlewares
 app.use(express.json({ limit: "1mb" }));
+app.use(express.urlencoded({ extended: true })); // Adicionado para formulários
 app.use(cors({ origin: process.env.CORS_ORIGIN?.split(",") || "*" }));
 app.use(morgan(process.env.NODE_ENV === "production" ? "combined" : "dev"));
 app.use(helmet());
@@ -57,15 +59,26 @@ app.use("/api/carrinho", carrinhoRoutes);
 app.use("/api/pedidos", pedidoRoutes);
 // app.use("/api/notificacoes", notificacaoRoutes);
 
-// 404
-app.use((req, res, next) => res.status(404).json({ error: "Rota não encontrada" }));
-
-// Error handler
-// eslint-disable-next-line no-unused-vars
-app.use((err, req, res, next) => {
-  console.error("Unhandled error:", err);
-  res.status(err.status || 500).json({ error: "Erro interno" });
+// 404 (Novo Handler)
+app.use((req, res, next) => {
+  res.status(404).json({ error: "Rota não encontrada" });
 });
+
+// Error handler GLOBAL (Novo Handler)
+app.use((err, req, res, next) => {
+  console.error("Unhandled error:", err.stack || err);
+
+  // Se for um erro de validação (do express-validator)
+  if (err.errors) {
+    return res.status(400).json({ erros: err.errors });
+  }
+
+  // Outros erros
+  res
+    .status(err.status || 500)
+    .json({ error: err.message || "Erro interno no servidor" });
+});
+
 
 const PORT = process.env.PORT || 5000;
 const server = app.listen(PORT, () => console.log(`🚀 Servidor rodando na porta ${PORT}`));
