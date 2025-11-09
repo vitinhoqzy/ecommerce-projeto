@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Checkout - Minha Loja</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="checkout-header">
+    <h1>Finalizar Pedido</h1>
+    <a href="index.html" class="btn-voltar">← Voltar à Loja</a>
+  </header>
+
+  <main class="checkout-container">
+    <section id="checkout-itens-container" class="checkout-itens"></section>
+
+    <aside class="checkout-resumo">
+      <h2>Resumo</h2>
+      <p>Subtotal: <span id="resumo-subtotal">R$ 0,00</span></p>
+      <p>Frete: <span id="resumo-frete">R$ 0,00</span></p>
+      <p><strong>Total: <span id="resumo-total">R$ 0,00</span></strong></p>
+
+      <button id="finalizar-pedido-btn" class="btn-finalizar">Finalizar Pedido</button>
+      <button id="limpar-carrinho-btn" class="btn-limpar">Limpar Carrinho</button>
+    </aside>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
